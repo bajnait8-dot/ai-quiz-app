@@ -169,6 +169,13 @@ def get_evaluation(quiz_id: str) -> dict[str, Any] | None:
     return _row_to_evaluation(row) if row else None
 
 
+def delete_evaluation(quiz_id: str) -> None:
+    """Clear a saved result so the quiz can be taken again from scratch."""
+
+    with _write_lock, _cursor() as cur:
+        cur.execute("DELETE FROM evaluations WHERE quiz_id = ?", (quiz_id,))
+
+
 def count_quizzes() -> int:
     with _write_lock, _cursor() as cur:
         cur.execute("SELECT COUNT(*) AS total FROM quizzes")

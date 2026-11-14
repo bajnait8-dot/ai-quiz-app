@@ -19,6 +19,8 @@ and no JavaScript build step at runtime.
 - **Shareable quizzes**: every quiz lives at `/quiz/<id>` and survives restarts.
 - **Refresh-safe results**: submitted answers and evaluations are persisted in
   SQLite, so reloading a results page keeps the score.
+- **Retake any quiz**: a server-backed reset clears the saved result and unlocks
+  the questions so you can solve them again.
 - **Related topics** that fill the topic form in one click.
 - **Accessible, responsive UI** with server-rendered error and loading states.
 
@@ -109,6 +111,7 @@ All settings are environment variables (see `app/.env.example`):
 | `/quiz/{quiz_id}` | GET | Shareable quiz page, including saved results |
 | `/generate-quiz` | POST | Form endpoint; returns a quiz HTML fragment |
 | `/quiz/{quiz_id}/evaluate` | POST | Form endpoint; returns solved quiz + results |
+| `/quiz/{quiz_id}/retry` | POST | Clears the saved result and returns the quiz unsolved |
 | `/health` | GET | Liveness check |
 | `/health/ready` | GET | Readiness check with quiz count |
 

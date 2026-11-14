@@ -1,4 +1,4 @@
-from db import save_evaluation, save_quiz
+from db import get_evaluation, save_evaluation, save_quiz
 
 from tests.helpers import csrf_token, quiz_payload
 
@@ -137,6 +137,56 @@ def test_share_page_shows_saved_evaluation(client):
     assert response.status_code == 200
     assert "Score: 100%" in response.text
     assert "Perfect score." in response.text
+
+
+def test_retry_clears_saved_evaluation(client):
+    save_quiz(quiz_payload("retry-quiz"))
+    save_evaluation(
+        "retry-quiz",
+        {
+            "topic": "Python testing fundamentals",
+            "score": 50,
+            "correct_answers_index": [1],
+            "incorrect_answers_index": [2],
+            "improvement_tips": "Review fixtures.",
+            "links": [],
+            "selected_options": [1, 2],
+        },
+    )
+
+    token = csrf_token(client)
+    response = client.post("/quiz/retry-quiz/retry", data={"csrf_token": token})
+
+    assert response.status_code == 200
+    assert "Check Score" in response.text
+    assert "Quiz Results" not in response.text
+    assert response.headers["hx-push-url"] == "/quiz/retry-quiz"
+    assert get_evaluation("retry-quiz") is None
+
+
+def test_retry_rejects_bad_csrf(client):
+    save_quiz(quiz_payload("retry-csrf"))
+    save_evaluation(
+        "retry-csrf",
+        {
+            "topic": "Python testing fundamentals",
+            "score": 50,
+            "correct_answers_index": [1],
+            "incorrect_answers_index": [2],
+            "improvement_tips": "Review fixtures.",
+            "links": [],
+            "selected_options": [1, 2],
+        },
+    )
+
+    response = client.post(
+        "/quiz/retry-csrf/retry", data={"csrf_token": "wrong-token"}
+    )
+
+    assert response.status_code == 200
+    assert response.headers["hx-retarget"] == "#quiz-error"
+    assert "session expired" in response.text
+    assert get_evaluation("retry-csrf") is not None
 
 
 def test_unknown_quiz_returns_404_page(client):

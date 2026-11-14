@@ -21,18 +21,18 @@
   >
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
 
-    <div class="mb-6 items-center flex justify-between flex-row">
-      <div class="space-y-2">
-        <h2 class="text-2xl font-bold">{{ quiz.topic }}</h2>
-        <p class="text-sm text-gray-500 space-x-3">
-          <span class="bg-[#435663] rounded-md py-1 px-2 text-white">Questions: {{ quiz.length }}</span>
-          <span class="{{ intensity_colors.get(quiz.intensity, 'bg-[#435663]') }} rounded-md py-1 px-2 text-white">{{ quiz.intensity|upper }}</span>
-        </p>
+    <div class="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-start sm:justify-between">
+      <div class="min-w-0 space-y-2">
+        <h2 class="break-words text-xl font-bold sm:text-2xl">{{ quiz.topic }}</h2>
+        <div class="flex flex-wrap gap-2 text-sm text-gray-500">
+          <span class="rounded-md bg-[#435663] px-2 py-1 text-white">Questions: {{ quiz.length }}</span>
+          <span class="{{ intensity_colors.get(quiz.intensity, 'bg-[#435663]') }} rounded-md px-2 py-1 text-white">{{ quiz.intensity|upper }}</span>
+        </div>
       </div>
       {% if not solved %}
         <button
           type="submit"
-          class="px-4 py-2 rounded font-medium transition-colors text-black bg-white hover:bg-zinc-900 hover:text-white border-2 border-black rounded-lg font-semibold transition py-2"
+          class="w-full shrink-0 rounded-lg border-2 border-black bg-white px-4 py-2 font-semibold text-black transition-colors hover:bg-zinc-900 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:w-auto"
         >
           Check Score
         </button>
@@ -45,6 +45,6 @@
       {% endwith %}
     {% endfor %}
 
-    <p id="quiz-error" class="text-red-500 text-sm mt-2" aria-live="polite"></p>
+    <p id="quiz-error" class="mt-2 text-sm text-red-500" aria-live="polite"></p>
   </form>
 </div>

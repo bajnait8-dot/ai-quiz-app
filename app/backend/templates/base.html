@@ -9,10 +9,12 @@
   <link rel="stylesheet" href="/static/css/app.css" />
 </head>
 <body class="min-h-screen bg-white bg-[image:repeating-linear-gradient(315deg,rgba(0,0,0,0.15)_0,rgba(0,0,0,0.15)_1px,transparent_0,transparent_50%)] bg-[size:10px_10px] bg-fixed">
-  <div class="flex min-h-screen flex-col justify-center items-center">
+  <div class="flex min-h-screen flex-col">
     {% include "partials/navbar.html" %}
-    <main class="flex-1 container flex flex-col justify-center items-center w-full">
-      {% block content %}{% endblock %}
+    <main class="flex w-full flex-1 flex-col px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+      <div class="mx-auto flex w-full max-w-[1440px] flex-1 flex-col">
+        {% block content %}{% endblock %}
+      </div>
     </main>
   </div>
   <script src="/static/js/htmx.min.js" defer></script>

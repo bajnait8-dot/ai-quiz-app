@@ -7,7 +7,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
 from core.security import csrf_is_valid, client_ip, rate_limiter
-from db import get_evaluation, get_quiz, save_evaluation
+from db import delete_evaluation, get_evaluation, get_quiz, save_evaluation
 from services.evaluation import build_evaluation
 from services.generation import GenerationError, generate_quiz
 from services.validation import ValidationError, parse_answers, validate_generate_form
@@ -177,3 +177,36 @@ async def evaluate(request: Request, quiz_id: str) -> HTMLResponse:
         selected_options=answers,
     )
     return HTMLResponse(body)
+
+
+@router.post("/quiz/{quiz_id}/retry", response_class=HTMLResponse)
+async def retry(request: Request, quiz_id: str) -> HTMLResponse:
+    """Clear a saved evaluation and render the quiz ready to be solved again."""
+
+    quiz = get_quiz(quiz_id)
+    if not quiz:
+        return _stage_error(
+            request,
+            "This quiz link is invalid. Generate a new quiz to get started.",
+        )
+
+    form = await request.form()
+    if not csrf_is_valid(request, form.get("csrf_token")):
+        return _error_response(
+            "Your session expired. Please refresh the page and try again.",
+            "#quiz-error",
+        )
+
+    delete_evaluation(quiz_id)
+    logger.info("reset quiz for retake quiz_id=%s", quiz_id)
+
+    body = render_partial(
+        request,
+        "partials/quiz.html",
+        quiz=quiz,
+        evaluation=None,
+        selected_options=None,
+    )
+    response = HTMLResponse(body)
+    response.headers["HX-Push-Url"] = f"/quiz/{quiz_id}"
+    return response

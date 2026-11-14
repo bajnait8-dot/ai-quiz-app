@@ -22,6 +22,17 @@
     }
   });
 
+  // Start every new stage at the top so results and fresh quizzes are not
+  // hidden below the previous scroll position.
+  document.body.addEventListener("htmx:afterSwap", function (event) {
+    if (!event.detail.target || event.detail.target.id !== "stage") return;
+    const scroller = event.detail.target.closest(".quiz-scroll");
+    if (!scroller) return;
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    scroller.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+  });
+
   // Network-level failures do not get an HTML response, so restore the intro.
   function handleNetworkFailure(event) {
     if (!isGenerateForm(event.detail.elt)) return;

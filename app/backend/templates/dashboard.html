@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="flex gap-5 relative md:flex-row flex-col items-start">
-  <div class="w-full lg:w-[400px]">
+<div class="flex w-full flex-1 flex-col items-stretch gap-4 md:flex-row md:items-start md:gap-5">
+  <div class="w-full shrink-0 md:w-[300px] lg:w-[360px] xl:w-[390px]">
     {% include "partials/quiz_form.html" %}
   </div>
 
-  <div class="w-full lg:w-[900px]">
-    <div class="overflow-hidden rounded-3xl border-0 lg:border-2 border-black">
-      <div class="bg-white p-6 h-[550px] overflow-y-auto quiz-scroll">
+  <div class="w-full min-w-0 flex-1">
+    <div class="overflow-hidden rounded-2xl border-2 border-black bg-white sm:rounded-3xl">
+      <div class="quiz-scroll h-auto overflow-y-auto bg-white p-4 sm:p-6 md:h-[calc(100vh-10rem)] md:min-h-[560px] md:max-h-[760px]">
         <div id="stage">
           {% if initial_quiz %}
             {% with quiz=initial_quiz, evaluation=initial_evaluation, selected_options=(initial_evaluation.selected_options if initial_evaluation else none) %}

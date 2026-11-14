@@ -27,6 +27,17 @@
   background-color: #a1a1aa;
 }
 
+/* Highlight the whole difficulty pill when its radio is selected. */
+.intensity-option:has(input:checked) {
+  border-color: #18181b;
+  background-color: #18181b;
+  color: #ffffff;
+}
+.intensity-option:has(input:focus-visible) {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
 /* htmx loading indicator handling. */
 .htmx-indicator {
   display: none;
