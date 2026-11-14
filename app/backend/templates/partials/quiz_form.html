@@ -1,0 +1,81 @@
+<form
+  id="generate-form"
+  hx-post="/generate-quiz"
+  hx-target="#stage"
+  hx-swap="innerHTML"
+  hx-disabled-elt="find button[type='submit']"
+  class="max-w-md mx-auto p-5 bg-white border-0 lg:border-black lg:border-2 rounded-3xl space-y-3"
+  aria-label="Generate a quiz"
+>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+  <input type="hidden" name="current_quiz_id" id="current-quiz-id" value="{{ initial_quiz.quiz_id if initial_quiz else '' }}" />
+
+  <h2 class="text-2xl font-semibold text-center text-zinc-900">Generate Quiz</h2>
+
+  <label class="block mb-3 topic-field">
+    <span class="text-sm font-medium text-gray-700">Topic</span>
+    <input
+      id="topic-input"
+      type="text"
+      name="topic"
+      value="{{ form.topic }}"
+      placeholder="Eg: Python FastApi Framework"
+      minlength="{{ topic_min }}"
+      maxlength="{{ topic_max }}"
+      autocomplete="off"
+      required
+      aria-describedby="form-error"
+      class="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+    />
+    <p id="form-error" class="text-red-500 text-sm mt-1 ml-1" aria-live="polite">{{ error }}</p>
+  </label>
+
+  <div class="block mb-3" role="radiogroup" aria-label="Intensity">
+    <span class="text-sm font-medium text-gray-700">Intensity</span>
+    <ul class="flex flex-col sm:flex-row gap-2 mt-1">
+      {% for value, label in [('easy', 'Easy'), ('medium', 'Medium'), ('hard', 'Hard')] %}
+        <li class="inline-flex items-center gap-x-2.5 py-3 px-4 text-sm font-medium bg-white border border-gray-200 text-gray-800 -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg sm:-ms-px sm:mt-0 sm:first:rounded-se-none sm:first:rounded-es-lg sm:last:rounded-es-none sm:last:rounded-se-lg cursor-pointer">
+          <div class="relative flex items-start w-full">
+            <div class="flex items-center h-5">
+              <input
+                id="intensity-{{ value }}"
+                name="intensity"
+                type="radio"
+                value="{{ value }}"
+                {% if form.intensity == value %}checked{% endif %}
+                class="border-gray-200 rounded-full"
+              />
+            </div>
+            <label for="intensity-{{ value }}" class="ms-3 block w-full text-sm text-gray-600">{{ label }}</label>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <label class="block mb-5">
+    <span class="text-sm font-medium text-gray-700">Number of Questions (Max:{{ quiz_max }})</span>
+    <input
+      type="number"
+      name="length"
+      min="{{ quiz_min }}"
+      max="{{ quiz_max }}"
+      value="{{ form.length }}"
+      required
+      class="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+    />
+  </label>
+
+  <button
+    type="submit"
+    class="w-full px-4 py-2 rounded font-medium transition-colors text-black bg-white hover:bg-zinc-900 hover:text-white border-2 border-black rounded-lg font-semibold transition py-2"
+  >
+    Generate Quiz
+  </button>
+
+  <p class="text-xs text-gray-500 mt-2">
+    Note: Quiz generation may take up to 30 seconds.
+  </p>
+
+  {% include "partials/related_topics.html" %}
+</form>

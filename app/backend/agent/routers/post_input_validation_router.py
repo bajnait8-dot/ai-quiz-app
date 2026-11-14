@@ -1,11 +1,9 @@
-from agent.state import State
+from __future__ import annotations
+
 from langgraph.graph import END
 
-def post_input_validation_router(state: State):
-    print("--- IN POST INPUT VALIDATION ROUTER ---")
-    error = state['error']
-    print(f"Input issues? {error}")
-    if not error:
-        return "generate"
-    else:
-        return END
+from agent.state import State
+
+
+def post_input_validation_router(state: State) -> str:
+    return END if state.get("error") else "generate"

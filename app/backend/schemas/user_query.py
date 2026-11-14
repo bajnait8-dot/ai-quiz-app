@@ -1,23 +1,8 @@
-from pydantic import BaseModel,field_validator
-from schemas.constants import IntensityType,QuizLengthConstraints,QuizTopicConstraints
-from schemas.quiz_schema import QuizAnswers
-from typing import List
+from __future__ import annotations
 
-class user_query(BaseModel):
-    topic: str = QuizTopicConstraints
-    intensity: IntensityType
-    length: int = QuizLengthConstraints
-
-    @field_validator('intensity',mode='before')
-    @classmethod
-    def validate_command(cls,v:str) -> str:
-        return v.lower()
-    
-class solved_quiz_query(BaseModel):
-    quiz_id: str
-    quiz_answers: List[QuizAnswers]
+from pydantic import BaseModel
 
 
 class input_validation_response(BaseModel):
     is_valid: bool
-    error: str | None
+    error: str | None = None

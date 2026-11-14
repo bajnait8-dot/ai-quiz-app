@@ -1,197 +1,169 @@
-# AI Quiz App
+# AI Quiz Generator
 
-This is a full-stack application that leverages Large Language Models (LLMs) to dynamically generate and evaluate quizzes on any topic provided by the user.
+A single-service **FastAPI + htmx** quiz app. Generate a multiple-choice quiz on any
+topic, answer it, and get a deterministic score with AI-written feedback and
+resource links.
 
-The frontend is built with React, TypeScript, and Vite, offering a clean and interactive user experience. The backend is a Python application using FastAPI, with a LangGraph agent orchestrating calls to the Groq API for fast LLM inference.
+The backend renders the UI with Jinja templates and swaps HTML fragments with
+htmx, so there is no separate frontend to deploy, no client-side data fetching,
+and no JavaScript build step at runtime.
 
 ## Features
 
--   **Dynamic Quiz Generation**: Create quizzes on any subject by simply providing a topic.
--   **Customizable Difficulty**: Tailor quizzes by selecting the intensity level (Easy, Medium, or Hard).
--   **Variable Length**: Specify the number of questions for each quiz (from 5 to 20).
--   **Instant Scoring**: Submit your answers and receive your score immediately.
--   **AI-Powered Evaluation**: Get detailed feedback, including a breakdown of correct/incorrect answers and AI-generated tips for improvement.
--   **Interactive UI**: A modern and responsive interface for a seamless quiz-taking experience.
+- **Dynamic quiz generation** on any topic with easy / medium / hard difficulty.
+- **5–15 questions** per quiz, with structure enforced server-side.
+- **Deterministic scoring**: the score is calculated in Python from the stored
+  answer key, never by the LLM.
+- **AI feedback**: personalised improvement tips and resource links, with a
+  local fallback if the LLM is unavailable.
+- **Shareable quizzes**: every quiz lives at `/quiz/<id>` and survives restarts.
+- **Refresh-safe results**: submitted answers and evaluations are persisted in
+  SQLite, so reloading a results page keeps the score.
+- **Related topics** that fill the topic form in one click.
+- **Accessible, responsive UI** with server-rendered error and loading states.
 
-## Technology Stack
+## How it works
 
--   **Backend**:
-    -   **Framework**: FastAPI
-    -   **AI Orchestration**: LangChain & LangGraph
-    -   **LLM Provider**: Groq API
-    -   **Models**: Llama 3.1 8B, Llama 3.3 70B
-    -   **Data Validation**: Pydantic
--   **Frontend**:
-    -   **Library/Framework**: React
-    -   **Language**: TypeScript
-    -   **Build Tool**: Vite
-    -   **Styling**: Tailwind CSS
-    -   **API Communication**: Axios
+```
+Browser ──POST /generate-quiz──▶ FastAPI ──▶ LangGraph ──▶ Groq LLM
+   ▲                                  │
+   └──── HTML fragment (htmx swap) ◀──┴──▶ SQLite (quizzes, evaluations)
 
-## System Architecture
-
-The application is composed of a distinct frontend and backend that communicate via a REST API.
-
-### Backend
-
-The backend is built with **FastAPI**. The core logic is encapsulated within a **LangGraph** agent, which defines a stateful graph to manage the quiz lifecycle.
-
-1.  **State Management**: The agent's `State` includes the quiz topic, intensity, generated questions, user answers, and evaluation results. LangGraph's `MemorySaver` is used to persist the state of each quiz session, identified by a unique `quiz_id`.
-
-2.  **Control Flow**: A `quiz_router` at the entry point of the graph directs the flow. If a quiz has not been solved, it proceeds to the `generate` branch. If it has been solved (indicated by the presence of `quiz_answers`), it proceeds to the `evaluate` branch.
-
-3.  **Quiz Generation**:
-    -   The `gen_quiz_node` uses the `llama-3.3-70b-versatile` model via the Groq API to create a list of questions, options, and explanations based on the user's topic.
-    -   The `validate_quiz_node` checks if the generated quiz meets the minimum length requirement before sending it to the user.
-
-4.  **Quiz Evaluation**:
-    -   When a user submits their answers, the `EvaluateQuizAgent` is invoked.
-    -   The `evaluate_quiz` node uses the `llama-3.1-8b-instant` model to compare the user's answers against the correct answers stored in the session's state.
-    -   It calculates the score, identifies correct and incorrect answers, and generates personalized improvement tips.
-
-### Frontend
-
-The frontend is a single-page application created with **React** and **Vite**.
-
--   **Components**: The UI is broken down into reusable components for the quiz form, question cards, results display, and layout.
--   **Services**: API calls to the backend are handled by dedicated service functions using **Axios**.
--   **Routing**: **React Router** is used to manage navigation, creating a unique URL path (`/quiz/:quiz_id`) for each generated quiz.
--   **Styling**: **Tailwind CSS** provides a utility-first approach for responsive design.
-
----
-
-## Docker Setup (Recommended)
-
-You can run the entire project using Docker without manually installing Python or Node.
-
-### Prerequisites
-
-* Docker installed → [https://www.docker.com/](https://www.docker.com/)
-
----
-
-### 1. Environment Setup
-
-Create a `.env` file in (app/) dir:
-
-```env
-GROQ_API_KEY=your_groq_api_key_here
+Browser ──POST /quiz/{id}/evaluate──▶ FastAPI ──▶ Python scoring
+   ▲                                        │
+   └──── solved quiz + results (htmx) ◀─────┴──▶ LLM tips (optional)
 ```
 
-You can copy from the example:
+- **Generation graph** (`agent/graph.py`): `validate topic → generate → validate
+  structure and length`. A failed generation is retried once, then surfaced as a
+  friendly message.
+- **Evaluation** (`services/evaluation.py`): score and correct/incorrect indexes
+  are computed locally; the LLM only writes the tips and links. Links are
+  sanitised to `http(s)` before rendering.
+- **Persistence** (`db.py`): SQLite via the standard library. No external
+  database or in-memory LangGraph checkpointer is required.
+
+## Tech stack
+
+| Layer | Choice |
+| --- | --- |
+| Web framework | FastAPI |
+| Templates | Jinja2 |
+| Interactivity | htmx 2 (vendored locally) |
+| Styling | Tailwind CSS (compiled to one static file) |
+| AI orchestration | LangGraph + LangChain |
+| LLM provider | Groq |
+| Storage | SQLite (WAL mode) |
+| Tests | pytest + FastAPI TestClient |
+
+## Quick start with Docker
 
 ```bash
-cp .env.example .env
-```
-
----
-
-### 2. Build and Run with Docker Compose
-
-From the root directory:
-
-```bash
+cd app
+cp .env.example .env      # then add your GROQ_API_KEY
 docker compose up --build
 ```
 
-This will:
+Open **http://localhost:8000**. The SQLite database lives in the `quiz-data`
+volume, so quizzes survive container restarts.
 
-* Start the backend (FastAPI)
-* Start the frontend (React)
-* Connect both services automatically
+## Local development
 
----
-
-### 3. Access the App
-
-* Frontend → [http://localhost:5173](http://localhost:5173)
-
----
-
-### 4. Stop Containers
+Requires Python 3.12+.
 
 ```bash
-docker compose down
+cd app/backend
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements-dev.txt
+
+cp ../.env.example ../.env   # add GROQ_API_KEY
+uvicorn main:app --reload --port 8000
 ```
 
----
+Open **http://localhost:8000**.
 
+### Configuration
 
-## Local Setup and Installation
+All settings are environment variables (see `app/.env.example`):
 
-Follow these steps to run the project on your local machine.
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `GROQ_API_KEY` | — | Required for quiz generation |
+| `GROQ_MODEL` | `qwen/qwen3.8-27b` | Model used for all LLM calls |
+| `LLM_TIMEOUT_SECONDS` | `30` | Per-request LLM timeout |
+| `LLM_MAX_RETRIES` | `0` | Groq client retries (kept low to avoid long 429 sleeps) |
+| `DATABASE_PATH` | `./data/quiz.db` | SQLite file |
+| `TOPIC_MIN_LENGTH` / `TOPIC_MAX_LENGTH` | `10` / `150` | Topic validation |
+| `QUIZ_MIN_QUESTIONS` / `QUIZ_MAX_QUESTIONS` | `5` / `15` | Quiz length |
+| `QUIZ_GENERATION_ATTEMPTS` | `2` | Regeneration attempts |
+| `RATE_LIMIT_REQUESTS` / `RATE_LIMIT_WINDOW_SECONDS` | `20` / `60` | Per-IP limits |
+| `COOKIE_SECURE` | `false` | Set `true` when served over HTTPS |
+| `ENVIRONMENT` / `LOG_LEVEL` | `development` / `INFO` | Runtime |
 
-### Prerequisites
+## Routes
 
--   Python 3.9+
--   Node.js v20.19+ and npm
+| Route | Method | Description |
+| --- | --- | --- |
+| `/` | GET | Dashboard (form + intro) |
+| `/quiz/{quiz_id}` | GET | Shareable quiz page, including saved results |
+| `/generate-quiz` | POST | Form endpoint; returns a quiz HTML fragment |
+| `/quiz/{quiz_id}/evaluate` | POST | Form endpoint; returns solved quiz + results |
+| `/health` | GET | Liveness check |
+| `/health/ready` | GET | Readiness check with quiz count |
 
-### Backend Setup
+## Tests
 
-1.  **Navigate to the backend directory:**
-    ```sh
-    cd app/backend
-    ```
+```bash
+cd app/backend
+python -m pytest -q
+```
 
-2.  **Create and activate a virtual environment:**
-    ```sh
-    # For Unix/macOS
-    python -m venv venv
-    source venv/bin/activate
+The suite covers form validation, answer parsing, deterministic scoring, link
+sanitisation, generation/evaluation routes, CSRF rejection, share pages and the
+health endpoints. LLM calls are stubbed, so tests run offline.
 
-    # For Windows
-    python -m venv venv
-    .\venv\Scripts\activate
-    ```
+## Project structure
 
-3.  **Install dependencies:**
-    ```sh
-    pip install fastapi uvicorn python-dotenv langgraph langchain-groq pydantic-settings pyjwt
-    ```
+```
+app/
+├─ backend/
+│  ├─ main.py                # app, middleware, error pages, health
+│  ├─ db.py                  # SQLite persistence
+│  ├─ templating.py          # Jinja helpers
+│  ├─ agent/                 # LangGraph generation pipeline
+│  ├─ services/              # generation, evaluation, validation, LLM config
+│  ├─ routers/               # pages + htmx form endpoints
+│  ├─ templates/             # Jinja pages and partials
+│  ├─ static/                # compiled CSS, htmx, app.js, logo
+│  ├─ assets/input.css       # Tailwind source
+│  ├─ tests/
+│  └─ Dockerfile
+├─ docker-compose.yml        # one service
+└─ .env.example
+```
 
-4.  **Configure environment variables:**
-    Create a `.env` file in the `app/backend` directory and add your Groq API key:
-    ```env
-    GROK_API_KEY="YOUR_GROQ_API_KEY"
-    ```
+## Security and robustness notes
 
-5.  **Run the backend server:**
-    ```sh
-    uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
-    ```
-    The server will be available at `http://127.0.0.1:8000`.
+- Server-side validation of topic, difficulty, question count and every answer.
+- CSRF double-submit cookie protection on both form endpoints.
+- Per-IP sliding-window rate limiting (single-process).
+- Strict CSP and standard security headers; no third-party scripts.
+- LLM output validated with Pydantic before it can reach the UI.
+- Prompt-injection resistant prompts: user topics are delimited as data.
+- Resource links restricted to `http(s)` and rendered with `noopener`.
+- Structured logs with request IDs.
 
-### Frontend Setup
+## Rebuilding the CSS
 
-1.  **Navigate to the frontend directory:**
-    ```sh
-    cd app/frontend
-    ```
+The compiled stylesheet is committed, so Node is not needed to run the app. If
+you change templates or Tailwind classes:
 
-2.  **Install dependencies:**
-    ```sh
-    npm install
-    ```
+```bash
+cd app/backend
+npx --yes tailwindcss@3.4.19 -c tailwind.config.js -i assets/input.css -o static/css/app.css --minify
+```
 
-3.  **Run the frontend development server:**
-    ```sh
-    npm run dev
-    ```
-    The application will be accessible at `http://localhost:5173`.
+## License
 
-## API Endpoints
-
-The backend exposes the following API endpoints:
-
--   `POST /generate-quiz`
-    -   Generates a new quiz.
-    -   **Body**: `{ "topic": "string", "intensity": "string", "length": "integer" }`
-    -   **Response**: A JSON object containing the quiz details and questions.
-
--   `POST /evaluate-quiz`
-    -   Evaluates a user's submitted answers for a quiz.
-    -   **Body**: `{ "quiz_id": "string", "quiz_answers": [{"question_index": "integer", "selected_option": "integer"}] }`
-    -   **Response**: A JSON object with the score and evaluation feedback.
-
--   `GET /health`
-    -   A health check endpoint to confirm the server is running.
+MIT

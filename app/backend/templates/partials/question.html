@@ -1,0 +1,41 @@
+{% set solved_incorrect = solved and q_index in evaluation.incorrect_answers_index %}
+<div
+  class="question-card p-3 border rounded-lg shadow-sm mb-4 question {% if solved %}{% if solved_incorrect %}border-red-600{% else %}border-green-700{% endif %}{% else %}border-zinc-300{% endif %}"
+  style="animation-delay: {{ q_index0 * 70 }}ms"
+  data-correct-option="{{ question.correct_answer }}"
+>
+  <p class="font-semibold">{{ q_index }}. {{ question.question }}</p>
+
+  {% if solved %}
+    {% if solved_incorrect %}
+      <span class="bg-[#C44545] px-2 py-0.5 rounded-full text-white text-sm">incorrect</span>
+    {% else %}
+      <span class="bg-[#5C766D] px-2 py-0.5 rounded-full text-white text-sm">correct</span>
+    {% endif %}
+  {% endif %}
+
+  <ul class="mt-2 space-y-1">
+    {% for option in question.options %}
+      {% set option_index = loop.index %}
+      {% set is_correct = option_index == question.correct_answer %}
+      {% set is_selected = selected_options and selected_options[q_index - 1] == option_index %}
+      <li>
+        <label class="p-2 rounded flex flex-row gap-3 {% if is_correct and solved %}bg-green-100 font-medium{% else %}bg-gray-50{% endif %}">
+          <input
+            type="radio"
+            name="question-{{ q_index }}"
+            value="{{ option_index }}"
+            class="quiz-input"
+            {% if is_selected %}checked{% endif %}
+            {% if solved %}disabled{% else %}required{% endif %}
+          />
+          <span>{{ option }}</span>
+        </label>
+      </li>
+    {% endfor %}
+  </ul>
+
+  {% if solved %}
+    <p class="mt-2 text-sm text-gray-600">{{ question.short_explanation }}</p>
+  {% endif %}
+</div>

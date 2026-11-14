@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex gap-5 relative md:flex-row flex-col items-start">
+  <div class="w-full lg:w-[400px]">
+    {% include "partials/quiz_form.html" %}
+  </div>
+
+  <div class="w-full lg:w-[900px]">
+    <div class="overflow-hidden rounded-3xl border-0 lg:border-2 border-black">
+      <div class="bg-white p-6 h-[550px] overflow-y-auto quiz-scroll">
+        <div id="stage">
+          {% if initial_quiz %}
+            {% with quiz=initial_quiz, evaluation=initial_evaluation, selected_options=(initial_evaluation.selected_options if initial_evaluation else none) %}
+              {% include "partials/quiz.html" %}
+            {% endwith %}
+          {% else %}
+            {% include "partials/intro.html" %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<template id="loading-template">{% include "partials/loading.html" %}</template>
+<template id="intro-template">{% include "partials/intro.html" %}</template>
+{% endblock %}

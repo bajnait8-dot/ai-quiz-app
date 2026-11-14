@@ -1,0 +1,42 @@
+<div class="bg-[#F5F5F5] px-3 py-3 rounded-lg flex flex-col gap-2 top-0 left-0 w-full shadow-md animate-slide-down">
+  <div class="evaluation-header">
+    <p class="font-semibold space-x-2">
+      <span class="bg-[#3B7597] py-1 px-3 text-white rounded-full">Quiz Results</span>
+      <span>{{ evaluation.topic }}</span>
+    </p>
+  </div>
+
+  <p class="font-bold text-2xl text-black">Score: {{ evaluation.score }}%</p>
+
+  <div class="flex flex-row">
+    <p class="font-semibold bg-[#5C766D] text-white py-0.5 px-2 w-max rounded-l-lg">
+      Correct: {{ evaluation.correct_answers_index|length }}
+    </p>
+    <p class="font-semibold bg-[#C44545] text-white py-0.5 px-2 w-max rounded-r-lg">
+      Incorrect: {{ evaluation.incorrect_answers_index|length }}
+    </p>
+  </div>
+
+  <div class="space-y-2">
+    <p class="font-semibold text-[#3B7597] px-1">Summary</p>
+    <p class="bg-white p-2 rounded-lg">{{ evaluation.improvement_tips }}</p>
+  </div>
+
+  {% if evaluation.links %}
+    <div class="space-y-2">
+      <p class="font-semibold text-[#3B7597] px-1">Resources for improvement</p>
+      <ul class="space-y-1">
+        {% for link in evaluation.links %}
+          <li class="bg-white py-1 px-3 rounded-lg">
+            <a
+              href="{{ link }}"
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              class="text-gray-600 font-semibold rounded-full text-sm hover:text-blue-500 cursor-pointer break-all"
+            >{{ link }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+</div>

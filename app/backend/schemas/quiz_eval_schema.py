@@ -1,10 +1,32 @@
-from pydantic import BaseModel,Field
+from __future__ import annotations
+
 from typing import List
 
+from pydantic import BaseModel, Field
+
+
+class EvaluationFeedback(BaseModel):
+    """The only part of an evaluation written by the LLM."""
+
+    improvement_tips: str = Field(
+        description=(
+            "Brief, specific feedback for the learner: what they got wrong and "
+            "how to improve. Around 400-500 characters. No links."
+        )
+    )
+    links: List[str] = Field(
+        description="1 to 5 http(s) resource links relevant to the topic",
+        min_length=1,
+        max_length=5,
+    )
+
+
 class quiz_evaluation(BaseModel):
-    topic: str = Field(description='Topic of the quiz')
-    score: float = Field(description='Score of quiz in percentage')
-    incorrect_answers_index: List[int] = Field(description="Question indexes for incorrect answers should match total number of incorrect answers by lengths should be in [1,2,3,4,5,.....] format")
-    correct_answers_index: List[int] = Field(description="Question indexes for correct answers should match total number of correct answers by length should be in [1,2,3,4,5,.....] format")
-    improvement_tips: str = Field(description="Improvement learning tips for user based on quiz in brief with resources tips in brief tell user what they did wrong show comparison explanation in 400-500 chars don't include any links here just give tips and feedback for improvement")
-    links: List[str] = Field(description="List of resources links for user to improve on the topic minimum 1 link and maximum 5 links",min_length=1,max_length=5)
+    """Full evaluation returned to the UI (score is computed deterministically)."""
+
+    topic: str
+    score: float
+    incorrect_answers_index: List[int]
+    correct_answers_index: List[int]
+    improvement_tips: str
+    links: List[str] = Field(default_factory=list)
