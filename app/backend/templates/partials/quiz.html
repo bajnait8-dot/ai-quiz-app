@@ -1,0 +1,60 @@
+{% set solved = evaluation is not none %}
+{% set intensity_colors = {"easy": "bg-[#628141]", "medium": "bg-[#DE802B]", "hard": "bg-[#AA2B1D]"} %}
+<div class="space-y-3 stage-content">
+  {% if solved %}
+    {% include "partials/evaluation.html" %}
+  {% endif %}
+
+  <p id="eval-loading" class="htmx-indicator text-zinc-700 font-medium" role="status" aria-live="polite">
+    Evaluating your quiz...
+  </p>
+
+  <form
+    id="quiz-form"
+    hx-post="/quiz/{{ quiz.quiz_id }}/evaluate"
+    hx-target="#stage"
+    hx-swap="innerHTML"
+    hx-indicator="#eval-loading"
+    hx-disabled-elt="find button[type='submit']"
+    data-quiz-id="{{ quiz.quiz_id }}"
+    aria-label="Quiz questions"
+  >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+
+    <div class="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-start sm:justify-between">
+      <div class="min-w-0 space-y-2">
+        <h2 class="break-words text-xl font-bold sm:text-2xl">{{ quiz.topic }}</h2>
+        <div class="flex flex-wrap gap-2 text-sm text-gray-500">
+          <span class="rounded-md bg-[#435663] px-2 py-1 text-white">Questions: {{ quiz.length }}</span>
+          <span class="{{ intensity_colors.get(quiz.intensity, 'bg-[#435663]') }} rounded-md px-2 py-1 text-white">{{ quiz.intensity|upper }}</span>
+        </div>
+      </div>
+      {% if not solved %}
+        <div class="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
+          <a
+            href="/quiz/{{ quiz.quiz_id }}/print"
+            target="_blank"
+            rel="noopener"
+            class="inline-flex w-full items-center justify-center rounded-lg border-2 border-black bg-white px-4 py-2 font-semibold text-black transition-colors hover:bg-zinc-900 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:w-auto"
+          >
+            Print Quiz
+          </a>
+          <button
+            type="submit"
+            class="w-full shrink-0 rounded-lg border-2 border-black bg-white px-4 py-2 font-semibold text-black transition-colors hover:bg-zinc-900 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:w-auto"
+          >
+            Check Score
+          </button>
+        </div>
+      {% endif %}
+    </div>
+
+    {% for question in quiz.questions %}
+      {% with q_index=loop.index, q_index0=loop.index0 %}
+        {% include "partials/question.html" %}
+      {% endwith %}
+    {% endfor %}
+
+    <p id="quiz-error" class="mt-2 text-sm text-red-500" aria-live="polite"></p>
+  </form>
+</div>

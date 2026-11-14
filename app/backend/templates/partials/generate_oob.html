@@ -1,0 +1,5 @@
+<div id="related-topics" hx-swap-oob="innerHTML">
+  {% include "partials/related_topics_list.html" %}
+</div>
+<p id="form-error" hx-swap-oob="innerHTML">{{ error }}</p>
+<input type="hidden" id="current-quiz-id" name="current_quiz_id" value="{{ initial_quiz.quiz_id if initial_quiz else '' }}" hx-swap-oob="outerHTML" />

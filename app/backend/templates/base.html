@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/static/logo.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Generate AI-powered quizzes on any topic with instant scoring and personalised feedback." />
+  <title>{% block title %}AI Quiz Generator{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/app.css" />
+</head>
+<body class="min-h-screen bg-white bg-[image:repeating-linear-gradient(315deg,rgba(0,0,0,0.15)_0,rgba(0,0,0,0.15)_1px,transparent_0,transparent_50%)] bg-[size:10px_10px] bg-fixed">
+  <div class="flex min-h-screen flex-col">
+    {% include "partials/navbar.html" %}
+    <main class="flex w-full flex-1 flex-col px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+      <div class="mx-auto flex w-full max-w-[1440px] flex-1 flex-col">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+  <script src="/static/js/htmx.min.js" defer></script>
+  <script src="/static/js/app.js" defer></script>
+</body>
+</html>

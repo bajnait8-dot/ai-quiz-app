@@ -1,3 +1,14 @@
 __pycache__
 *.pyc
+*.pyo
 .venv
+venv
+.env
+.env.*
+data
+*.db
+*.db-wal
+*.db-shm
+.pytest_cache
+tests
+.git

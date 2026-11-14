@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
+/* Custom scrollbar for the quiz stage (mirrors tailwind-scrollbar). */
+.quiz-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #d4d4d8 transparent;
+}
+.quiz-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.quiz-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.quiz-scroll::-webkit-scrollbar-thumb {
+  background-color: #d4d4d8;
+  border-radius: 9999px;
+}
+.quiz-scroll:hover::-webkit-scrollbar-thumb {
+  background-color: #a1a1aa;
+}
+
+/* Highlight the whole difficulty pill when its radio is selected. */
+.intensity-option:has(input:checked) {
+  border-color: #18181b;
+  background-color: #18181b;
+  color: #ffffff;
+}
+.intensity-option:has(input:focus-visible) {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* htmx loading indicator handling. */
+.htmx-indicator {
+  display: none;
+}
+.htmx-request.htmx-indicator,
+.htmx-request .htmx-indicator {
+  display: block;
+}
+
+/* Red border on the topic field while an error message is present. */
+.topic-field:has(#form-error:not(:empty)) input {
+  border-color: #ef4444;
+}
+
+/* Motion replacements for the previous framer-motion animations. */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes question-in {
+  from {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-fade-up-400 {
+  animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
+}
+.animate-fade-in-200 {
+  animation: fade-in 0.6s ease-out 0.2s both;
+}
+.animate-fade-in-600 {
+  animation: fade-in 0.6s ease-out 0.6s both;
+}
+.animate-slide-down {
+  animation: slide-down 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.question-card {
+  animation: question-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

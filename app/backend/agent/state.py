@@ -1,13 +1,12 @@
-from typing import TypedDict
-from schemas.constants import IntensityType
+from __future__ import annotations
 
-class State(TypedDict):
+from typing import TypedDict
+
+
+class State(TypedDict, total=False):
     topic: str
-    intensity: IntensityType
+    intensity: str
     length: int
-    quiz_json: dict
-    quiz_id:str
+    quiz_json: dict | None
     error: str | None
-    quiz_solved: bool
-    quiz_answers: list
-    quiz_evaluation: dict
+    retry_feedback: str | None

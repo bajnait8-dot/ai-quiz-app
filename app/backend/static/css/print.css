@@ -1,0 +1,212 @@
+:root {
+  color-scheme: light;
+  --ink: #000000;
+  --muted: #3f3f3f;
+  --rule: #9a9a9a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: #ececec;
+  color: var(--ink);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 12pt;
+  line-height: 1.4;
+}
+
+/* Screen-only toolbar. It is removed entirely when printing. */
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: #ffffff;
+  border-bottom: 1px solid var(--rule);
+}
+
+.toolbar a,
+.toolbar button {
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #000000;
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 6px;
+  padding: 0.45rem 1rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.toolbar a:hover,
+.toolbar button:hover {
+  background: #000000;
+  color: #ffffff;
+}
+
+.toolbar a:focus-visible,
+.toolbar button:focus-visible {
+  outline: 3px solid #000000;
+  outline-offset: 2px;
+}
+
+.sheet {
+  width: min(100%, 210mm);
+  margin: 1.5rem auto;
+  padding: 16mm 14mm;
+  background: #ffffff;
+  border: 1px solid #bbbbbb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.paper-header {
+  margin-bottom: 1.25rem;
+}
+
+.paper-header h1 {
+  margin: 0 0 0.3rem;
+  font-size: 1.45rem;
+  line-height: 1.2;
+  overflow-wrap: break-word;
+}
+
+.paper-subtitle {
+  margin: 0 0 0.9rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.paper-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 2rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+.paper-meta > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.blank {
+  display: inline-block;
+  min-width: 8rem;
+  border-bottom: 1px solid #000000;
+}
+
+.blank.short {
+  min-width: 5rem;
+}
+
+.paper-instructions {
+  margin: 0.65rem 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.questions {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.question {
+  margin: 0 0 1.05rem;
+  padding: 0;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.question::marker {
+  font-weight: 700;
+}
+
+.question-text {
+  margin: 0 0 0.4rem;
+  font-weight: 600;
+  overflow-wrap: break-word;
+}
+
+/* All options sit on one line when they fit and wrap neatly when they don't. */
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 1.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.options li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  max-width: 100%;
+  break-inside: avoid;
+}
+
+.option-label {
+  font-weight: 700;
+}
+
+.option-text {
+  overflow-wrap: break-word;
+}
+
+.paper-footer {
+  margin-top: 1.5rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+@media screen and (max-width: 640px) {
+  .sheet {
+    margin: 0.75rem auto;
+    padding: 10mm 7mm;
+  }
+
+  .paper-header h1 {
+    font-size: 1.25rem;
+  }
+}
+
+@page {
+  margin: 14mm;
+}
+
+@media print {
+  body {
+    background: #ffffff;
+    font-size: 11.5pt;
+  }
+
+  .toolbar {
+    display: none !important;
+  }
+
+  .sheet {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+  }
+}

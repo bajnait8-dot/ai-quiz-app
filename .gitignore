@@ -18,6 +18,9 @@ env/
 
 # ---- FastAPI / uvicorn ----
 *.db
+*.db-wal
+*.db-shm
+data/
 *.sqlite3
 *.log
 logs/
