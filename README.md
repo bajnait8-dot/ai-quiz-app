@@ -21,6 +21,9 @@ and no JavaScript build step at runtime.
   SQLite, so reloading a results page keeps the score.
 - **Retake any quiz**: a server-backed reset clears the saved result and unlocks
   the questions so you can solve them again.
+- **Printable paper quizzes**: a minimal black-and-white print view keeps the
+  title, questions and inline A/B/C/D options, with no answers or results, so
+  teachers can hand it out for students to solve on paper.
 - **Related topics** that fill the topic form in one click.
 - **Accessible, responsive UI** with server-rendered error and loading states.
 
@@ -112,6 +115,7 @@ All settings are environment variables (see `app/.env.example`):
 | `/generate-quiz` | POST | Form endpoint; returns a quiz HTML fragment |
 | `/quiz/{quiz_id}/evaluate` | POST | Form endpoint; returns solved quiz + results |
 | `/quiz/{quiz_id}/retry` | POST | Clears the saved result and returns the quiz unsolved |
+| `/quiz/{quiz_id}/print` | GET | Blank black-and-white paper quiz for printing |
 | `/health` | GET | Liveness check |
 | `/health/ready` | GET | Readiness check with quiz count |
 
@@ -123,8 +127,9 @@ python -m pytest -q
 ```
 
 The suite covers form validation, answer parsing, deterministic scoring, link
-sanitisation, generation/evaluation routes, CSRF rejection, share pages and the
-health endpoints. LLM calls are stubbed, so tests run offline.
+sanitisation, generation/evaluation routes, CSRF rejection, retakes, share and
+print pages, and the health endpoints. LLM calls are stubbed, so tests run
+offline.
 
 ## Project structure
 

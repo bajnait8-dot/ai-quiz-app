@@ -45,3 +45,22 @@ async def quiz_page(request: Request, quiz_id: str) -> HTMLResponse:
     return render_page(
         request, "dashboard.html", **_page_context(quiz=quiz, evaluation=evaluation)
     )
+
+
+@router.api_route(
+    "/quiz/{quiz_id}/print", methods=["GET", "HEAD"], response_class=HTMLResponse
+)
+async def print_quiz(request: Request, quiz_id: str) -> HTMLResponse:
+    """Render a blank, paper-friendly version of a quiz for teachers to print."""
+
+    quiz = get_quiz(quiz_id)
+    if not quiz:
+        return render_page(
+            request,
+            "error.html",
+            status_code=404,
+            title="Quiz not found",
+            message="This quiz link is invalid. Generate a new quiz to get started.",
+        )
+
+    return render_page(request, "print.html", quiz=quiz)

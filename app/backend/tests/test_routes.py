@@ -189,6 +189,44 @@ def test_retry_rejects_bad_csrf(client):
     assert get_evaluation("retry-csrf") is not None
 
 
+def test_print_page_renders_blank_paper_quiz(client):
+    save_quiz(quiz_payload("print-quiz"))
+    save_evaluation(
+        "print-quiz",
+        {
+            "topic": "Python testing fundamentals",
+            "score": 50,
+            "correct_answers_index": [1],
+            "incorrect_answers_index": [2],
+            "improvement_tips": "Review fixtures.",
+            "links": [],
+            "selected_options": [1, 2],
+        },
+    )
+
+    response = client.get("/quiz/print-quiz/print")
+
+    assert response.status_code == 200
+    assert "Python testing fundamentals" in response.text
+    assert "Which tool runs Python tests?" in response.text
+    assert "A)" in response.text
+    assert "B)" in response.text
+    assert "pytest" in response.text
+    assert "Name:" in response.text
+    assert "Circle the letter" in response.text
+    # The printout is always blank, even when the interactive quiz was solved.
+    assert "Score:" not in response.text
+    assert "Quiz Results" not in response.text
+    assert "pytest is the standard Python test runner." not in response.text
+    assert "checked" not in response.text
+
+
+def test_print_page_unknown_quiz_returns_404(client):
+    response = client.get("/quiz/does-not-exist/print")
+    assert response.status_code == 404
+    assert "Quiz not found" in response.text
+
+
 def test_unknown_quiz_returns_404_page(client):
     response = client.get("/quiz/does-not-exist")
     assert response.status_code == 404

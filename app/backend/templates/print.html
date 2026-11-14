@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/static/logo.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <meta name="description" content="Printable paper version of the quiz." />
+  <title>{{ quiz.topic }} · Printable Quiz</title>
+  <link rel="stylesheet" href="/static/css/print.css" />
+</head>
+<body>
+  <div class="toolbar">
+    <a href="/quiz/{{ quiz.quiz_id }}">Back to quiz</a>
+    <button type="button" id="print-button">Print quiz</button>
+  </div>
+
+  <main class="sheet">
+    <header class="paper-header">
+      <h1>{{ quiz.topic }}</h1>
+      <p class="paper-subtitle">{{ quiz.intensity|capitalize }} · {{ quiz.length }} questions</p>
+      <p class="paper-meta">
+        <span>Name: <span class="blank" aria-hidden="true"></span></span>
+        <span>Date: <span class="blank short" aria-hidden="true"></span></span>
+      </p>
+      <p class="paper-instructions">Circle the letter of the correct answer for each question.</p>
+    </header>
+
+    {% set letters = ["A", "B", "C", "D", "E", "F", "G", "H"] %}
+    <ol class="questions">
+      {% for question in quiz.questions %}
+        <li class="question">
+          <p class="question-text">{{ question.question }}</p>
+          <ul class="options">
+            {% for option in question.options %}
+              <li>
+                <span class="option-label">{{ letters[loop.index0] }})</span>
+                <span class="option-text">{{ option }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endfor %}
+    </ol>
+
+    <footer class="paper-footer">Generated with AI Quiz Generator</footer>
+  </main>
+
+  <script src="/static/js/print.js" defer></script>
+</body>
+</html>
